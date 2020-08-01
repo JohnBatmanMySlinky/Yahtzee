@@ -1,4 +1,3 @@
-from random import randint
 from random import seed
 import numpy as np
 
@@ -18,10 +17,8 @@ score_board = {
   "chance": -1.0
 }
 
-a_turn = []
-
 def roll_a_die():
-  return(randint(1,6))
+  return(np.random.randint(1,6))
 
 def roll_x_dice(x):
   global a_turn
@@ -267,14 +264,32 @@ def run_open_expectations():
 def play():
     while min(score_board.values()) == -1:
         selection = []
-        selection = raw_input("Roll or Input or See Score or Log Score or BREAK\n")
+        selection = raw_input("Roll, Partial Roll, Input, See Score, Log Score or BREAK\n")
 
-        if selection == "Roll".lower():
+        if selection.lower() == "Roll".lower():
             roll_x_dice(5)
             print(a_turn)
             run_open_expectations()
 
-        elif selection == "Input".lower():
+        elif selection.lower() == "Partial Roll".lower():
+            global a_turn
+            a_turn = []
+
+            # dice you rolled
+            input_dice = [int(i) for i in raw_input("Input dice you have\n")]
+
+            # roll remaining dice
+            roll_x_dice(5-len(input_dice))
+
+            # update hand to have both rolled and simulated
+            a_turn = a_turn + input_dice
+
+            # print hand and run expectations
+            print(a_turn)
+            run_open_expectations()
+
+
+        elif selection.lower() == "Input".lower():
             global a_turn
             a_turn = [int(i) for i in list(raw_input("well what are ur dice?\n"))]
             run_open_expectations()
