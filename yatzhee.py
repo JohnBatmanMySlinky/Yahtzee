@@ -1,5 +1,7 @@
 from random import seed
 import numpy as np
+import shelve
+
 
 score_board = {
   "1s": -1.0,
@@ -261,10 +263,55 @@ def run_open_expectations():
     sorted_keepers = sorted(keepers.items(), key=lambda x: x[1], reverse = True)
     print(sorted_keepers)
 
+
+def shelve_init():
+    s = shelve.open('yahtzee')
+
+    if len(list(s.keys())) > 10:
+        print(list(s.keys()))
+        to_delete = raw_input("pick a key to delete or DEL ALL\n")
+
+        if to_delete == "DEL ALL":
+            for x in list(s.keys()):
+                del s[x]
+        else:
+            del s[to_delete]
+
+    global game_title
+    game_title = raw_input("game title? MM-DD-YYY NAME\n")
+    try:
+        s[game_title] = score_board
+    finally:
+        s.close()
+
+
+def shelve_update():
+    s = shelve.open('yahtzee')
+    try:
+        s[game_title] = score_board
+    finally:
+        s.close()
+
+def shelve_read_from():
+    s = shelve.open('yahtzee')
+    print(list(s.keys()))
+    which_game = raw_input("which game to load?\n")
+    try:
+        print(s[which_game])
+        global score_board
+        score_board = s[which_game]
+    finally:
+        s.close()
+
+
+
 def play():
+
+    shelve_init()
+
     while min(score_board.values()) == -1:
         selection = []
-        selection = raw_input("Roll, Partial Roll, Input, See Score, Log Score or BREAK\n")
+        selection = raw_input("Roll, Partial Roll, Input, See Score, Log Score, Load Game or BREAK\n")
 
         if selection.lower() == "Roll".lower():
             roll_x_dice(5)
@@ -305,18 +352,16 @@ def play():
             score_board_score = raw_input("Score?\n")
 
             score_board[score_board_cat] = score_board_score
+
+            shelve_update()
+        elif selection.lower() == "Load Game".lower():
+            shelve_read_from()
         elif selection == "BREAK":
             break
         else:
-            print("WRONG")
-
-# keep dice and Roll N dice thru menu
-
-#
+            print("WRONG, try again")
 
 #understand that pythonic if __main__ == __main__ weird ass shit
-
-# save the scoreboard to some flat file so can 'recover game?'
 
 #22334 Full House Expected Value
 #input should take 5 and only 5 die
